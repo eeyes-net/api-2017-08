@@ -2,43 +2,43 @@
 
 namespace App\Http\Middleware;
 
+use App\Library\Eeyes\EeyesAdmin;
 use Closure;
-use Illuminate\Contracts\Auth\Factory as Auth;
 
 class Authenticate
 {
     /**
-     * The authentication guard factory instance.
-     *
-     * @var \Illuminate\Contracts\Auth\Factory
-     */
-    protected $auth;
-
-    /**
      * Create a new middleware instance.
      *
-     * @param  \Illuminate\Contracts\Auth\Factory  $auth
+     * @param \Illuminate\Contracts\Auth\Factory $auth
      * @return void
      */
-    public function __construct(Auth $auth)
+    public function __construct()
     {
-        $this->auth = $auth;
     }
 
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string|null  $guard
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next, $permission)
     {
-        if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+        if (!$request->has('token')) {
+            return response('Token must be provided', 400);
         }
-
+        $token = $request->input('token');
+        $token_result = EeyesAdmin::token($token);
+        if (!$token_result['username']) {
+            return response($token_result['msg'], 403);
+        }
+        $username = $token_result['username'];
+        $permission = EeyesAdmin::permission($username, $permission);
+        if ($permission['can'] !== true) {
+            return response($permission['msg'], 403);
+        }
         return $next($request);
     }
 }

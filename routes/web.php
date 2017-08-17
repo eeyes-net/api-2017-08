@@ -14,3 +14,10 @@
 $app->get('/', function () use ($app) {
     return $app->version();
 });
+
+$app->group(['prefix' => 'xjtu'], function () use ($app) {
+    $app->group(['prefix' => 'user'], function () use ($app) {
+        $app->get('info', ['middleware' => 'auth:api.xjtu.user.info', 'uses' => 'Xjtu\UserController@getUserInfo']);
+        $app->get('photo', ['middleware' => 'auth:api.xjtu.user.photo', 'uses' => 'Xjtu\UserController@getUserPhoto']);
+    });
+});
