@@ -17,7 +17,7 @@ class XjtuUserInfo
      * XjtuUserInfo constructor.
      *
      * @param string $url
-     * @param callable $auth
+     * @param string $auth
      */
     public function __construct($url, $auth)
     {
@@ -61,7 +61,7 @@ class XjtuUserInfo
     protected function soapCall($func_name, $params = array())
     {
         $client = new SoapClient($this->url);
-        $params['auth'] = ($this->auth)($func_name, $params);
+        $params['auth'] = $this->auth;
         $result = $client->__soapCall($func_name, array($params));
         if (!$result || !property_exists($result, 'return')) {
             return null;

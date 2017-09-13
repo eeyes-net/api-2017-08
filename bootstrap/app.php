@@ -23,13 +23,9 @@ $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
 
-// Load The Config
-$app->configure('xjtu');
-$app->configure('eeyes');
+$app->withFacades();
 
-// $app->withFacades();
-
-// $app->withEloquent();
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
