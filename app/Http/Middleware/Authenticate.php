@@ -2,8 +2,9 @@
 
 namespace App\Http\Middleware;
 
-use App\Library\Eeyes\EeyesAdmin;
+use App\Model\Eeyes\Permission\Token;
 use Closure;
+use Illuminate\Support\Facades\Validator;
 
 class Authenticate
 {
@@ -11,6 +12,7 @@ class Authenticate
      * Create a new middleware instance.
      *
      * @param \Illuminate\Contracts\Auth\Factory $auth
+     *
      * @return void
      */
     public function __construct()
@@ -22,23 +24,33 @@ class Authenticate
      *
      * @param \Illuminate\Http\Request $request
      * @param \Closure $next
+     * @param string $permission
+     *
      * @return mixed
      */
     public function handle($request, Closure $next, $permission)
     {
-        if (!$request->has('token')) {
-            return response('Token must be provided', 400);
+        /** @var \Illuminate\Validation\Validator $validator */
+        $validator = Validator::make($request->all(), [
+            'token' => 'required|max:190',
+        ]);
+        if ($validator->fails()) {
+            return response(build_api_return([
+                'errors' => $validator->errors(),
+            ], 400, 'Validate token format failed.'), 400);
         }
-        $token = $request->input('token');
-        $token_result = EeyesAdmin::token($token);
-        if (!$token_result['username']) {
-            return response($token_result['msg'], 403);
+        $token = Token::where('token', $request->get('token'))->first();
+        if (!$token) {
+            return response(build_api_return(null, 403, 'Token not exists.'), 403);
         }
-        $username = $token_result['username'];
-        $permission = EeyesAdmin::permission($username, $permission);
-        if ($permission['can'] !== true) {
-            return response($permission['msg'], 403);
+
+        $result = $token->can($permission);
+        if (false === $result) {
+            return response(build_api_return(null, 403, 'Forbidden'), 403);
+        } elseif (true === $result) {
+            return $next($request);
+        } else {
+            return response(build_api_return(null, 500, $result), 500);
         }
-        return $next($request);
     }
 }

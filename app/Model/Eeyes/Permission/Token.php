@@ -5,26 +5,25 @@ namespace App\Model\Eeyes\Permission;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class User
+ * Class Token
  *
  * @package App\Model\Eeyes\Permission
  *
  * @property $id
- * @property $username
- * @property $password
- * @property $name
- * @property $created_at
- * @property $updated_at
+ * @property $token 令牌
+ * @property $name 名称
+ * @property $description 说明
+ * @property $not_before 生效时间
+ * @property $not_after 过期时间
  *
  * @property $all_permission_ids
  * @property $all_permissions
+ *
+ * @property $is_available 是否有效
  */
-class User extends Model
+class Token extends Model
 {
     protected $connection = 'mysql_permission';
-    protected $hidden = [
-        'password',
-    ];
 
     public function roles()
     {
@@ -33,6 +32,12 @@ class User extends Model
 
     public function can($slug)
     {
+        if ($_SERVER['REQUEST_TIME'] < strtotime($this->not_before)) {
+            return 'Token not available now.';
+        }
+        if (strtotime($this->not_after) < $_SERVER['REQUEST_TIME']) {
+            return 'Token expired.';
+        }
         $permission = Permission::where('slug', $slug)->first();
         if (is_null($permission)) {
             return 'Permission not exists.';
@@ -75,4 +80,9 @@ class User extends Model
         return Permission::find($this->all_permission_ids);
     }
 
+    public function getIsAvailableAttribute()
+    {
+        return (strtotime($this->not_before) <= $_SERVER['REQUEST_TIME'])
+            && ($_SERVER['REQUEST_TIME'] <= strtotime($this->not_after));
+    }
 }
