@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Eeyes;
 use App\Library\Eeyes\DingTalkRobot;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Mockery\Exception;
 
 class NotificationController
 {
@@ -13,7 +12,7 @@ class NotificationController
     {
         $access_token = env('EEYES_DING_TALK_ROBOT_ACCESS_TOKEN', '');
         if (empty($access_token)) {
-            throw new Exception('Empty EEYES_DING_TALK_ROBOT_ACCESS_TOKEN.');
+            throw new \Exception('Empty EEYES_DING_TALK_ROBOT_ACCESS_TOKEN.');
         }
         /** @var \Illuminate\Validation\Validator $validator */
         $validator = Validator::make($request->all(), [

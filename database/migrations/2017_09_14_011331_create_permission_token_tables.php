@@ -20,7 +20,7 @@ class CreatePermissionTokenTables extends Migration
         $connection->create('tokens', function (Blueprint $table) {
             $table->increments('id');
             $table->string('token', 190)->unique()->comment('令牌');
-            $table->string('name')->comment('名称');
+            $table->text('name')->comment('名称');
             $table->text('description')->comment('说明');
             $table->dateTime('not_before')->comment('生效时间');
             $table->dateTime('not_after')->comment('过期时间');

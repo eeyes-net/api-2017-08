@@ -21,8 +21,8 @@ class ApiLogMiddleware
         $apiLog = new ApiLog();
         $apiLog->path = $request->path();
         $apiLog->method = $request->method();
-        $apiLog->ip = $request->ip();
-        $apiLog->user_agent = $request->userAgent();
+        $apiLog->ip = (string)$request->ip();
+        $apiLog->user_agent = (string)$request->userAgent();
         $apiLog->query = (string)$request->getQueryString();
         $apiLog->body = (string)$request->getContent();
         $apiLog->response_code = 0;

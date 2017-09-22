@@ -28,14 +28,14 @@ class CreatePermissionRbacTables extends Migration
         $connection->create('roles', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug', 190)->unique()->comment('代号');
-            $table->string('name')->comment('名称');
+            $table->text('name')->comment('名称');
             $table->timestamps();
         });
 
         $connection->create('permissions', function (Blueprint $table) {
             $table->increments('id');
             $table->string('slug', 190)->unique()->comment('代号');
-            $table->string('name')->comment('名称');
+            $table->text('name')->comment('名称');
             $table->timestamps();
         });
 
